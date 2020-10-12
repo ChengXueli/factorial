@@ -404,6 +404,24 @@ def find_fake_factorial(objects, bits,
         g_max_y = y + h
     g_list.append(
         [mp.Rectangle((x, y), w, h, fc='k', fill=False)])
+
+    # 内部的指示箭头
+    if vertical:
+        g_list.append([
+            MyArrow(x + w / 2, y + h + 0.2, 0, 0.5, head_width=1, head_length=0.5, width=0.5,
+                    color='g')
+        ])
+    else:
+        if r2l:
+            g_list.append([
+                MyArrow(x - 1, y + h / 2, -cols + 1, 0, head_width=2, head_length=1, width=1, color='g')
+            ])
+        else:
+            g_list.append([
+                MyArrow(x + w + 1, y + h / 2, cols - 4, 0, head_width=2, head_length=2, width=1,
+                        color='g')
+            ])
+
     if vertical:
         base_x = center_x - cols / 2
         base_y = y + h - padding_for_outline
@@ -433,10 +451,12 @@ def find_fake_factorial(objects, bits,
     # 说明此次过滤起了作用，那么继续进行递归，需要重编号
     # 画出缩减后的可能为假的列表
     if reduce:
-        if vertical:
-            base_y += (rows + 1)
-        else:
-            base_x += (cols + 1) * sign
+        # if vertical:
+        base_y += (rows + margin_for_filter)
+        # else:
+        #     base_x += (cols + 1) * sign
+        if not vertical:
+            center_x = base_x + cols / 2
 
         temp = list()
         for list_false, _, _ in list_list_false:
@@ -453,18 +473,28 @@ def find_fake_factorial(objects, bits,
 
             data_len = len(temp)
             rows, cols = get_rows_cols(data_len)
-            if vertical:
-                base_x = center_x - cols / 2
-            else:
-                base_y = center_y - rows / 2
+            # if vertical:
+            base_x = center_x - cols / 2
+            # else:
+            #     base_y = center_y - rows / 2
             draw(temp, cols, rows, base_x, base_y, colors=colors)
 
             wi = 3
+            wii = 1
+            l = max(1, margin_for_filter - 4)
+            if l <= 1:
+                wi = 0.5
+                wii = 0.5
+            g_list.append([
+                MyArrow(base_x + cols / 2, base_y - margin_for_filter, 0, l, head_width=wi + 0.5,
+                        head_length=wi, width=wii,
+                        color='g')
+            ])
             if len(temp) > 1:
                 g_list.append([
-                    MyArrow(base_x + cols / 2, base_y + rows + 2, 0, 5, head_width=wi, head_length=3, width=1)
+                    MyArrow(base_x + cols / 2, base_y + rows + 0.5, 0, 2, head_width=2, head_length=2, width=1)
                 ])
-                g_txt.append([base_x + cols / 2 + 1, base_y + rows + 5, "Reorder"])
+                g_txt.append([base_x + cols / 2 + 1, base_y + rows + 2, "Reorder"])
             if base_x + cols / 2 + wi / 2 > g_max_x:
                 g_max_x = base_x + cols / 2 + wi / 2
             temp = [[i, label(t), valid(t), True] for i, t in enumerate(temp)]
@@ -484,7 +514,7 @@ def find_fake_factorial(objects, bits,
             rows, cols = get_rows_cols(len(list_false))
             if reduce:
                 # margin_for_filter *= 5
-                padding_for_filter_inner *= 5
+                padding_for_filter_inner *= 6
                 if not r2l:
                     list_false, _, _ = find_fake_factorial(list_false, bits, cols, rows, base_x, base_y,
                                                            r2l=not r2l, vertical=vertical,
