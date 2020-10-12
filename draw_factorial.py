@@ -10,10 +10,10 @@ gi = 0
 g_list = []
 g_false_list = []
 g_colors = None
-min_x = 0
-max_x = 0
-min_y = 0
-max_y = 0
+g_min_x = 0
+g_max_x = 0
+g_min_y = 0
+g_max_y = 0
 
 
 def build_colors(data_list: list):
@@ -43,7 +43,7 @@ def build_colors(data_list: list):
 
 
 def draw_bin(data_list: list, cols: int, rows: int, base_x: float, base_y: float, color_list: list = None):
-    global min_x, max_x, min_y, max_y
+    global g_min_x, g_max_x, g_min_y, g_max_y
 
     if color_list is None:
         colors = build_colors(data_list)
@@ -207,12 +207,12 @@ def draw_factorial(data_list: list, bits: int, cols: int, rows: int, base_x: flo
 
 
 def redraw(file_name=None):
-    ax = new_figure(max_x - min_x + 0.2, max_y - min_y + 0.2, "white")
+    ax = new_figure(g_max_x - g_min_x + 0.2, g_max_y - g_min_y + 0.2, "white")
     for recs in g_list:
         for rec in recs:
             rec: mp.Rectangle = rec
-            rec.set_x(rec.get_x() - min_x + 0.1)
-            rec.set_y(rec.get_y() - min_y + 0.1)
+            rec.set_x(rec.get_x() - g_min_x + 0.1)
+            rec.set_y(rec.get_y() - g_min_y + 0.1)
             ax.add_patch(rec)
     if file_name is not None:
         plt.savefig(str(file_name))
@@ -229,7 +229,7 @@ if __name__ == '__main__':
     # redraw("temp.pdf")
 
     g_list.clear()
-    min_x, min_y, max_x, max_y = 0, 0, 50, 20
+    g_min_x, g_min_y, g_max_x, g_max_y = 0, 0, 50, 20
     import math
 
     draw_factorial(data_with_label, bits=int(math.log2(64)),

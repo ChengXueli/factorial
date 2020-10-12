@@ -3,7 +3,7 @@ import copy
 import matplotlib.patches as mp
 from matplotlib import pyplot as plt
 
-from .common import *
+from common import *
 
 W = 0.8
 H = 0.8
@@ -11,10 +11,10 @@ gi = 0
 g_list = []
 g_false_list = []
 g_colors = None
-min_x = 0
-max_x = 0
-min_y = 0
-max_y = 0
+g_min_x = 0
+g_max_x = 0
+g_min_y = 0
+g_max_y = 0
 
 
 def build_colors(data_list: list, true_set=None):
@@ -26,9 +26,9 @@ def build_colors(data_list: list, true_set=None):
         "#AA0000",
         "#AA0000"]
     true_colors = [
-        "#0000AA",
-        "#0000AA",
-        "#0000AA",
+        "#40A0FF",
+        "#40A0FF",
+        "#40A0FF",
     ]
 
     def i2gray(i):
@@ -154,12 +154,12 @@ def draw_factorial(data_list: list, bits: int,
 
 
 def redraw(file_name=None):
-    ax = new_figure(max_x - min_x + 0.2, max_y - min_y + 0.2, "white")
+    ax = new_figure(g_max_x - g_min_x + 0.2, g_max_y - g_min_y + 0.2, "white")
     for recs in g_list:
         for rec in recs:
             rec: mp.Rectangle = rec
-            rec.set_x(rec.get_x() - min_x + 0.1)
-            rec.set_y(rec.get_y() - min_y + 0.1)
+            rec.set_x(rec.get_x() - g_min_x + 0.1)
+            rec.set_y(rec.get_y() - g_min_y + 0.1)
             ax.add_patch(rec)
     if file_name is not None:
         plt.savefig(str(file_name))
@@ -173,7 +173,7 @@ if __name__ == '__main__':
     data[35] = False  # 100 101 -> 35
     data_with_label = [[i, d, True] for i, d in enumerate(data)]
 
-    min_x, min_y, max_x, max_y = 0, 0, 70, 50
+    g_min_x, g_min_y, g_max_x, g_max_y = 0, 0, 70, 50
 
     # draw_factorial(data_with_label, bits=int(math.log2(len(data_with_label))),
     #                cols=8, rows=8, color_list=g_colors,
