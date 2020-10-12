@@ -1,10 +1,12 @@
+import math
 import random
 import sys
-import math
-from common import *
-from draw_factorial2 import build_colors
+
 import matplotlib.patches as mp
 from matplotlib import pyplot as plt
+
+from common import *
+from draw_factorial2 import build_colors
 
 REPEAT = 1
 
@@ -19,7 +21,6 @@ gi = 0
 g_list = []
 g_false_list = []
 g_txt = []
-g_colors = None
 g_min_x = 0
 g_max_x = 0
 g_min_y = 0
@@ -97,6 +98,7 @@ def draw(objects, cols, rows, base_x, base_y, true_set=None, colors=None):
     if colors is None:
         colors = build_colors(objects, true_set)
         assert len(colors) == len(objects)
+
     for count, obj in enumerate(objects):
         i = count // cols
         j = count % cols
@@ -180,7 +182,7 @@ def find_fake_factorial(objects, bits,
                         cols: int, rows: int,
                         base_x: float, base_y: float,
                         r2l=False, single_line=True, vertical=False,
-                        padding_for_filter_inner=1, margin_for_filter=2):
+                        padding_for_filter_inner=1, margin_for_filter=None):
     """
 
     :param objects:
@@ -198,11 +200,16 @@ def find_fake_factorial(objects, bits,
     """
 
     # c_max_x, c_min_x, c_max_y, c_min_y = 0, 0, 0, 0
-
+    global g_list, g_txt
+    global g_min_x, g_min_y, g_max_x, g_max_y
     result = list()
     local_seq_count = 0
     local_par_count = 0
-
+    if margin_for_filter is None:
+        if vertical:
+            margin_for_filter = rows
+        else:
+            margin_for_filter = cols
     all_true = aggregate_verify(objects)
 
     # 当前filter的中心线
@@ -223,6 +230,22 @@ def find_fake_factorial(objects, bits,
     # 此列表存放的一定含有假，有多少不清楚。
     list_list_false = list()
 
+    # 内部的指示箭头
+    if vertical:
+        g_list.append([
+            MyArrow(base_x + cols / 2, base_y + rows + 0.2, 0, rows - 1.5, head_width=1, head_length=0.5, width=0.5,
+                    color='g')
+        ])
+    else:
+        if r2l:
+            g_list.append([
+                MyArrow(base_x - 1, base_y + rows / 2, -cols + 1, 0, head_width=2, head_length=2, width=1, color='g')
+            ])
+        else:
+            g_list.append([
+                MyArrow(base_x + cols + 1, base_y + rows / 2, cols - 4, 0, head_width=2, head_length=2, width=1,
+                        color='g')
+            ])
     # 此集合存放的一定为真, 只存放了label,即原始编号
     true_set_labels = set()
 
@@ -267,10 +290,6 @@ def find_fake_factorial(objects, bits,
         else:
             h = 2 * rows + padding_for_filter_inner + 2 * padding_for_outline
 
-    # 存放每一个分组的数据，及在图形中的x,y坐标，每个元素形如：[data, x, y]
-    global g_list, g_txt
-    global g_min_x, g_min_y, g_max_x, g_max_y
-
     # 进行filter过程，包括画图
     for i in range(bits):
         p0 = get_special_set(objects, bits, i, 0)
@@ -296,7 +315,7 @@ def find_fake_factorial(objects, bits,
             else:
                 g_txt.append([base_x1 + 1, base_y1 + rows + 2, text1])
 
-        ls = (0, (20, 20))
+        ls = (0, (5, 5))
         color = 'r'
         margin = 0.2
         if vertical:
@@ -464,7 +483,7 @@ def find_fake_factorial(objects, bits,
             list_false = [[i, label(data), valid(data), True] for i, data in enumerate(list_false)]
             rows, cols = get_rows_cols(len(list_false))
             if reduce:
-                margin_for_filter *= 5
+                # margin_for_filter *= 5
                 padding_for_filter_inner *= 5
                 if not r2l:
                     list_false, _, _ = find_fake_factorial(list_false, bits, cols, rows, base_x, base_y,
@@ -605,8 +624,8 @@ def main(argc, argv):
             i -= 1
         # data[10] = False  # 001 010 -> 10
         # data[35] = False  # 100 101 -> 35
-        # random_arr[0] = 10
-        # random_arr[1] = 35
+        random_arr[0] = 10
+        random_arr[1] = 35
         for i in range(num_fakes):
             objects[random_arr[i]][2] = False
         #     pass
@@ -637,10 +656,11 @@ def main(argc, argv):
             b = bin(number)[2:]
             return "0" * (6 - len(b)) + b
 
+        from draw_factorial2 import g_colors
         for number in random_arr[:num_fakes]:
             g_txt.append([2.5, y + 0.8, get_bin(number)])
             g_list.append([
-                mp.Rectangle((1, y), 1, 1, fc="#AA0000", fill=True)
+                mp.Rectangle((1, y), 1, 1, fc=g_colors[number], fill=True)
             ])
             y += 2
 
