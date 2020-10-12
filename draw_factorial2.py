@@ -18,12 +18,14 @@ g_max_y = 0
 
 
 def build_colors(data_list: list, true_set=None):
+    global g_colors
+
     SC = 32
     EC = 224
     step = (EC - SC) // len(data_list)
     false_colors = [
-        "#AA0000",
-        "#AA0000",
+        "#CC0000",
+        "#CC00CC",
         "#AA0000"]
     true_colors = [
         "#40A0FF",
@@ -47,8 +49,13 @@ def build_colors(data_list: list, true_set=None):
         elif valid(d):
             colors.append(i2gray(num(d)))
         else:
-            colors.append(false_colors[fi % len(false_colors)])
+            if g_colors is not None:
+                colors.append(g_colors[label(d)])
+            else:
+                colors.append(false_colors[fi % len(false_colors)])
             fi += 1
+    if g_colors is None:
+        g_colors = colors
     return colors
 
 
